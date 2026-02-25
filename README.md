@@ -10,7 +10,7 @@
 ## 1) 本地启动（最快）
 
 ```bash
-cd mvp
+npm install
 npm run dev
 ```
 
@@ -20,7 +20,7 @@ npm run dev
 
 ## 2) 开启大模型生成（推荐）
 
-在 `mvp/` 下创建 `.env.local`（可参考 `.env.example`）：
+在**仓库根目录**创建 `.env.local`（可参考 `.env.example`）：
 
 ```bash
 OPENAI_API_KEY=你的key
@@ -39,6 +39,13 @@ OPENAI_MODEL=gpt-4o-mini
 
 你可以继续往里加条目，或把内容扩展为更多主题（桥、MEV、签名消息、冷钱包等）。
 
+## 4) Debug：查看本次命中的检索片段
+
+UI 里有一个 **“查看检索片段（debug）”** 开关：
+
+- 关闭：只展示回答与参考来源
+- 开启：会额外展示本次检索命中的资料库片段（含 score/摘录），便于你验证 RAG 是否“真的用到了资料库”
+
 ## 4) API
 
 - `POST /api/ask`
@@ -46,7 +53,21 @@ OPENAI_MODEL=gpt-4o-mini
   - 返回：`answerMarkdown` + `sources`
 - `GET /api/health`
 
-## 5) 部署（Vercel）
+## 5) 常见问题
+
+### 端口/监听问题
+
+如果你在某些受限环境里启动 dev server 报监听地址权限问题，可以改为只监听本机：
+
+```bash
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+### 额度/计费问题（429 quota）
+
+如果你配置了 Key 但返回 `429 You exceeded your current quota`，这是 OpenAI 侧额度/计费问题；本项目会自动降级为“检索摘要模式”，你仍然可以先验证检索与来源展示。
+
+## 6) 部署（Vercel）
 
 最省事：直接用 Vercel 部署 Next.js，并在环境变量里配置 `OPENAI_API_KEY`（可选 `OPENAI_MODEL`）。
 
