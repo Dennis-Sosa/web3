@@ -1,0 +1,111 @@
+[
+  {
+    "id": "cornell-tech-nbay5710-sp26-l01",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 1,
+    "title": "Course Intro",
+    "date": "2026-01-21",
+    "instructor": "Ari Juels",
+    "tags": ["intro", "money", "ledger", "bitcoin", "pow"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L01_Course-Intro_2026-01-21.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L01_Course-Intro_2026-01-21.md",
+    "summary": "用“货币/账本”的历史类比引出比特币：把稀缺资源从金属转为计算（PoW），把难伪造数据转为密码学（哈希/签名），并讨论 bearer/registered 两类金融工具。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l02",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 2,
+    "title": "Bitcoin, Bit by Bit",
+    "date": null,
+    "instructor": "Ari Juels",
+    "tags": ["bitcoin", "blockchain", "signatures", "pseudonymity"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L02_BitcoinOverview.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L02_BitcoinOverview.md",
+    "summary": "从中心化账本（WallCoin）逐步加入数字签名与链式区块（SigCoin/ChainCoin），得到“不可篡改、可审计”的账本抽象，并为去中心化共识铺垫。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l03",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 3,
+    "title": "Bitcoin, Bit by Bit (Cont’d)",
+    "date": "2026-01-28",
+    "instructor": "Ari Juels",
+    "tags": ["consensus", "sybil", "pow", "mining", "hashing"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L03_BitcoinOverview-Contd_2026-01-28.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L03_BitcoinOverview-Contd_2026-01-28.md",
+    "summary": "聚焦共识：消息传播导致排序分歧、投票带来 Sybil 问题；用 PoW 挖矿把“投票权”绑定到算力成本，通过哈希难题给区块背书，并解释区块奖励。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l04",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 4,
+    "title": "Exercises and Basic Cryptography",
+    "date": "2026-02-02",
+    "instructor": "Ari Juels",
+    "tags": ["exercises", "wallet", "transaction-lifecycle", "hash-functions"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L04_Exercises-Basic-Crypto_2026-02-02.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L04_Exercises-Basic-Crypto_2026-02-02.md",
+    "summary": "通过练习串联：发行曲线、挖矿强安全直觉、钱包发送交易生命周期；引入哈希函数两大性质（抗碰撞、不可逆/难求原像），并做算力数量级估算。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l05",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 5,
+    "title": "Basic Crypto (Cont’d) and Bitcoin Mining",
+    "date": "2026-02-04",
+    "instructor": "Ari Juels",
+    "tags": ["hashing", "addresses", "txid", "mining", "pools", "asic"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L05_Basic-Crypto-Bitcoin-Mining_2026-02-04.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L05_Basic-Crypto-Bitcoin-Mining_2026-02-04.md",
+    "summary": "总结哈希在链上系统的具体落点（地址、TXID、区块链接、挖矿），澄清“区块链基础层通常不使用加密（encryption）”但大量使用签名/哈希；讨论 ASIC 与矿池的风险对冲。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l06",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 6,
+    "title": "Bitcoin Mining (Cont’d) and Wallets and Key Management",
+    "date": "2026-02-09",
+    "instructor": "Ari Juels",
+    "tags": ["energy", "pow", "pos", "pseudonymity", "custody", "key-management"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L06_Bitcoin-Mining-Wallets_2026-02-09.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L06_Bitcoin-Mining-Wallets_2026-02-09.md",
+    "summary": "围绕挖矿外部性与经济：能耗与“绿色挖矿”争议；PoW 与 PoS 的优缺点对比；比特币伪匿名但可追踪；密钥管理与机构托管的成本/权衡。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l07",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 7,
+    "title": "Key Management and Smart Contracts",
+    "date": "2026-02-11",
+    "instructor": "Ari Juels",
+    "tags": ["wallets", "multisig", "bip39", "hd-wallets", "cold-storage", "mpc", "smart-contracts"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L07_Wallets-Smart-Contracts_2026-02-11.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L07_Wallets-Smart-Contracts_2026-02-11.md",
+    "summary": "钱包工程与机构安全实践：多签与托管、BIP39 助记词、HD 派生、脑钱包风险、冷热存储；引入 secret sharing 与 MPC；用公平交换/执行问题引出智能合约。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l08",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 8,
+    "title": "Smart Contracts and Oracles",
+    "date": "2026-02-18",
+    "instructor": "Ari Juels",
+    "tags": ["smart-contracts", "immutability", "transparency", "composability", "gas", "eip-1559", "oracles"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L08_Smart-Contracts-Oracles_2026-02-18.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L08_Smart-Contracts-Oracles_2026-02-18.md",
+    "summary": "智能合约三大特性：不可变、透明、可组合（金融乐高）；解释 gas 的资源计费与 EIP-1559（base fee/priority fee/max fee）机制与区块交易排序；引入“合约需要外部数据”从而需要预言机。"
+  },
+  {
+    "id": "cornell-tech-nbay5710-sp26-l09",
+    "collection": "cornell-tech-nbay5710-sp26",
+    "lecture_number": 9,
+    "title": "Oracles (Cont’d)",
+    "date": "2026-02-23",
+    "instructor": "Ari Juels",
+    "tags": ["oracles", "defi", "liveness", "aggregation", "medianization", "vrf", "randomness"],
+    "raw_path": "mvp/library/raw/cornell-tech-nbay5710-sp26/L09_Oracles_2026-02-23.pdf",
+    "note_path": "mvp/library/notes/cornell-tech-nbay5710-sp26/L09_Oracles_2026-02-23.md",
+    "summary": "预言机设计要点：区块链本身不连互联网；用多节点+签名保证多数诚实与可用性；数值聚合用 median 抗异常值；高级用例包括 VRF 可验证随机数，服务 NFT 游戏等需要公平随机性的场景。"
+  }
+]
+

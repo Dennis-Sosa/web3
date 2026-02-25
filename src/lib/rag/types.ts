@@ -9,6 +9,7 @@ export type SourceDoc = {
 export type RagChunk = {
   chunkId: string;
   sourceId: string;
+  chunkIndex: number;
   title: string;
   url: string;
   tags: string[];

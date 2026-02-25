@@ -36,6 +36,9 @@ yarn-error.log*
 .env*.local
 !.env.example
 
+# large local library assets (avoid huge repo/deploy size)
+/library/raw
+
 # local data / outputs
 /outputs
 

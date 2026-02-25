@@ -22,6 +22,7 @@ export function chunkSources(docs: SourceDoc[]): RagChunk[] {
       chunks.push({
         chunkId,
         sourceId: doc.id,
+        chunkIndex: i,
         title: doc.title,
         url: doc.url,
         tags,

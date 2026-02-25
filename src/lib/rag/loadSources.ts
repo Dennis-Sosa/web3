@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SourceDoc } from "./types";
+import { encodePathForUrl, listFilesRecursive, toPosixPath } from "@/lib/library/fs";
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null && !Array.isArray(x);
@@ -8,6 +9,11 @@ function isRecord(x: unknown): x is Record<string, unknown> {
 
 function isString(x: unknown): x is string {
   return typeof x === "string";
+}
+
+function extractTitleFromMarkdown(md: string, fallback: string) {
+  const m = md.match(/^#\s+(.+)\s*$/m);
+  return (m?.[1]?.trim() || fallback).trim();
 }
 
 export async function loadSources(): Promise<SourceDoc[]> {
@@ -41,6 +47,36 @@ export async function loadSources(): Promise<SourceDoc[]> {
       content,
     };
   });
+
+  // Auto-include local library notes (e.g., uploaded PPT-derived notes)
+  const notesRoot = path.join(process.cwd(), "library", "notes");
+  const mdFiles = (await listFilesRecursive(notesRoot)).filter((p) => p.toLowerCase().endsWith(".md"));
+
+  for (const file of mdFiles) {
+    const md = await fs.readFile(file, "utf8").catch(() => "");
+    if (!md.trim()) continue;
+
+    const rel = toPosixPath(path.relative(notesRoot, file));
+    const url = `/library/notes/${encodePathForUrl(rel)}`;
+    const title = extractTitleFromMarkdown(md, path.basename(file, ".md"));
+
+    // Lightweight tags: folder names + filename hints
+    const folderTags = rel
+      .split("/")
+      .slice(0, -1)
+      .filter(Boolean)
+      .slice(-3);
+    const fileTag = path.basename(file, ".md");
+    const tags = ["library", ...folderTags, fileTag].filter(Boolean);
+
+    docs.push({
+      id: `library-note:${rel}`,
+      title,
+      url,
+      tags,
+      content: md,
+    });
+  }
 
   return docs;
 }

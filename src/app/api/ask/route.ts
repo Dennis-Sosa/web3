@@ -7,7 +7,76 @@ export const runtime = "nodejs";
 
 const ReqSchema = z.object({
   question: z.string().min(1).max(500),
+  demoPass: z.string().min(1).max(200).optional(),
 });
+
+type RateLimitState = Map<string, number[]>;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __web3_demo_rate_limit_state: RateLimitState | undefined;
+}
+
+function getRateLimitState(): RateLimitState {
+  if (!globalThis.__web3_demo_rate_limit_state) {
+    globalThis.__web3_demo_rate_limit_state = new Map();
+  }
+  return globalThis.__web3_demo_rate_limit_state;
+}
+
+function getClientIp(req: Request): string {
+  const h = req.headers;
+  const xff =
+    h.get("x-forwarded-for") ||
+    h.get("x-vercel-forwarded-for") ||
+    h.get("cf-connecting-ip") ||
+    h.get("x-real-ip");
+  if (xff) return xff.split(",")[0]?.trim() || "unknown";
+  return "unknown";
+}
+
+function readBearerToken(authorization: string | null): string | null {
+  if (!authorization) return null;
+  const m = authorization.match(/^Bearer\s+(.+)$/i);
+  return m?.[1]?.trim() || null;
+}
+
+function checkRateLimit(ip: string) {
+  const windowMs = Number(process.env.RATE_LIMIT_WINDOW_MS ?? "60000");
+  const max = Number(process.env.RATE_LIMIT_MAX ?? "20");
+
+  const effectiveWindowMs = Number.isFinite(windowMs) && windowMs > 0 ? windowMs : 60_000;
+  const effectiveMax = Number.isFinite(max) && max > 0 ? max : 20;
+
+  const now = Date.now();
+  const cutoff = now - effectiveWindowMs;
+
+  const state = getRateLimitState();
+  const hits = state.get(ip) ?? [];
+  const kept = hits.filter((t) => t > cutoff);
+
+  if (kept.length >= effectiveMax) {
+    const oldest = kept[0] ?? now;
+    const retryAfterMs = Math.max(0, oldest + effectiveWindowMs - now);
+    state.set(ip, kept);
+    return {
+      ok: false as const,
+      retryAfterMs,
+      limit: effectiveMax,
+      windowMs: effectiveWindowMs,
+      remaining: 0,
+    };
+  }
+
+  kept.push(now);
+  state.set(ip, kept);
+  return {
+    ok: true as const,
+    limit: effectiveMax,
+    windowMs: effectiveWindowMs,
+    remaining: Math.max(0, effectiveMax - kept.length),
+  };
+}
 
 export async function POST(req: Request) {
   try {
@@ -23,28 +92,78 @@ export async function POST(req: Request) {
       );
     }
 
+    const requiredPass = process.env.DEMO_PASS?.trim();
+    if (requiredPass) {
+      const provided =
+        req.headers.get("x-demo-pass")?.trim() ||
+        readBearerToken(req.headers.get("authorization")) ||
+        parsed.data.demoPass?.trim() ||
+        "";
+      if (!provided || provided !== requiredPass) {
+        return NextResponse.json(
+          {
+            error: "Unauthorized",
+            message: "Missing or invalid demo pass. Provide it via header `x-demo-pass` or JSON body field `demoPass`.",
+          },
+          { status: 401 },
+        );
+      }
+    }
+
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(ip);
+    if (!rl.ok) {
+      return NextResponse.json(
+        {
+          error: "Rate limited",
+          message: `Too many requests. Try again in ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+          retryAfterMs: rl.retryAfterMs,
+          limit: rl.limit,
+          windowMs: rl.windowMs,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)),
+            "X-RateLimit-Limit": String(rl.limit),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Window": String(rl.windowMs),
+          },
+        },
+      );
+    }
+
     const question = parsed.data.question.trim();
     const retrieved = await retrieveChunks(question, 6);
     const result = await askWithRag(question, retrieved);
 
-    return NextResponse.json({
-      question,
-      answerMarkdown: result.answerMarkdown,
-      sources: result.sources,
-      mode: result.mode,
-      usedModel: result.usedModel,
-      retrievedCount: retrieved.length,
-      ...(debug
-        ? {
-            retrieved: retrieved.map((c) => ({
-              score: c.score,
-              title: c.title,
-              url: c.url,
-              content: c.content,
-            })),
-          }
-        : {}),
-    });
+    return NextResponse.json(
+      {
+        question,
+        answerMarkdown: result.answerMarkdown,
+        sources: result.sources,
+        mode: result.mode,
+        usedModel: result.usedModel,
+        retrievedCount: retrieved.length,
+        ...(debug
+          ? {
+              retrieved: retrieved.map((c) => ({
+                score: c.score,
+                title: c.title,
+                url: c.url,
+                content: c.content,
+              })),
+            }
+          : {}),
+      },
+      {
+        headers: {
+          "X-RateLimit-Limit": String(rl.limit),
+          "X-RateLimit-Remaining": String(rl.remaining),
+          "X-RateLimit-Window": String(rl.windowMs),
+        },
+      },
+    );
   } catch (e: unknown) {
     return NextResponse.json(
       { error: "Server error", message: e instanceof Error ? e.message : String(e) },

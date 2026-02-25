@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { SYSTEM_PROMPT, buildUserPrompt } from "@/lib/prompts";
+import { SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, buildUserPrompt } from "@/lib/prompts";
 import type { RetrievedChunk } from "@/lib/rag/types";
 
 export type AskResponse = {
@@ -48,25 +48,32 @@ ${oneLiner}
 
 > 注：${reasonLine}
 
-## 概念解释（小白版）
+## 概念定义（一句话 + 关键词）
+（当前为“检索摘要模式”：请先看下方摘录来建立定义与关键词。）
+
+## 核心机制 / 怎么运作（分步骤）
+（当前为“检索摘要模式”：请先看下方摘录来还原机制/步骤。）
+
+## 核心要点（记住这几条就够）
 你问的是：**${question}**。\n\n下面是资料库里最相关的摘录（你可以先对照理解关键词）：\n${excerptBullets || "- （未检索到相关资料片段）"}
 
-## 为什么重要
-从资料片段能确认：这类概念通常和“区块链如何达成一致 / 交易如何被确认 / 为什么安全”相关。理解它们能帮助你看懂链上交易页面、费用提示与安全风险。
+## 为什么重要（解决什么问题 / 影响什么）
+从资料片段能确认：这类概念通常和“交易如何被授权/确认、系统如何达成一致、以及链上安全边界”相关。理解它们能帮助你看懂钱包提示、交易页面与常见风险。
 
 ## 常见误区 / 风险提醒
 - 不要把“概念理解”当作“收益承诺”。Web3 有真实风险。
 - 不要向任何人/网站透露助记词、私钥或导出密钥。
 - 连接 dApp 或签名/授权前，先确认域名与操作内容。
 
-## 下一步怎么学
-- 把问题写完整一点（例如“PoW 是什么？它怎么帮助达成共识？”），检索命中会更准
-- 从“钱包/助记词/私钥”“Gas/手续费”“授权 approve”三件事学起
-- 只用官方/知名教程入口，避免搜到钓鱼站
-
 ## 参考来源
 ${refs || "- （本次没有可引用来源）"}
 `;
+}
+
+function buildNoHitApiUserPrompt(question: string) {
+  return `用户问题：${question}
+
+资料库检索未命中。请按要求输出结构化解释，并在“一句话结论”里明确说明本次未引用资料库来源。`;
 }
 
 function extractStatus(err: unknown): number | null {
@@ -93,6 +100,10 @@ export async function askWithRag(question: string, retrievedChunks: RetrievedChu
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   const model = (process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini").trim();
 
+  // Rule: Prefer answering from the local library first.
+  // Only call the LLM API when either:
+  // - We have hits (grounded mode), or
+  // - There are no hits at all (general educational mode).
   if (!apiKey) {
     return {
       answerMarkdown: buildFallbackAnswer(question, retrieved, { reason: "no_api_key" }),
@@ -103,9 +114,32 @@ export async function askWithRag(question: string, retrievedChunks: RetrievedChu
   }
 
   const client = new OpenAI({ apiKey });
-  const userPrompt = buildUserPrompt(question, retrieved);
 
   try {
+    // If nothing was retrieved, call API in "no-sources" mode.
+    if (retrieved.length === 0) {
+      const completion = await client.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT_NO_SOURCES },
+          { role: "user", content: buildNoHitApiUserPrompt(question) },
+        ],
+        temperature: 0.2,
+      });
+
+      const text = completion.choices?.[0]?.message?.content?.trim();
+      return {
+        answerMarkdown:
+          text ||
+          `## 一句话结论\n资料库未命中相关片段，我先给出通用解释（未引用资料库来源，可能不够精确）。\n\n## 概念定义（一句话 + 关键词）\n（无）\n\n## 核心机制 / 怎么运作（分步骤）\n（无）\n\n## 核心要点（记住这几条就够）\n（无）\n\n## 为什么重要（解决什么问题 / 影响什么）\n（无）\n\n## 常见误区 / 风险提醒\n- 注意私钥/助记词安全与钓鱼风险。\n\n## 参考来源\n- （本次未命中资料库来源）\n`,
+        sources: [],
+        usedModel: model,
+        mode: "llm",
+      };
+    }
+
+    // Otherwise, we have hits: call API in grounded mode (must use retrieved snippets).
+    const userPrompt = buildUserPrompt(question, retrieved);
     const completion = await client.chat.completions.create({
       model,
       messages: [

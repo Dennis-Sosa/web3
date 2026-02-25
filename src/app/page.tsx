@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 type AskResult = {
@@ -23,14 +23,48 @@ const SAMPLE_QUESTIONS = [
   "稳定币是什么？真的“稳定”吗？",
 ];
 
+type QaApiResponse = {
+  updatedAt: string;
+  total: number;
+  items: { question: string; sourceTitle: string; sourceUrl: string }[];
+};
+
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AskResult | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [qa, setQa] = useState<QaApiResponse | null>(null);
+  const [demoPass, setDemoPass] = useState("");
 
   const canAsk = useMemo(() => question.trim().length > 0 && !loading, [question, loading]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("web3_demo_pass");
+      if (saved) setDemoPass(saved);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/qa", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json()) as QaApiResponse;
+        if (!cancelled) setQa(data);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function onAsk(q?: string) {
     const finalQ = (q ?? question).trim();
@@ -41,15 +75,34 @@ export default function Home() {
     setResult(null);
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const pass = demoPass.trim();
+      if (pass) headers["x-demo-pass"] = pass;
+
       const res = await fetch(showDebug ? "/api/ask?debug=1" : "/api/ask", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ question: finalQ }),
       });
 
       if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || `HTTP ${res.status}`);
+        let msg = "";
+        try {
+          const j = (await res.json()) as { error?: unknown; message?: unknown };
+          const message = typeof j?.message === "string" ? j.message : "";
+          const code = typeof j?.error === "string" ? j.error : "";
+          msg = message || code || "";
+        } catch {
+          // ignore
+        }
+        if (!msg) {
+          try {
+            msg = (await res.text()) || "";
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(msg || `HTTP ${res.status}`);
       }
 
       const data = (await res.json()) as AskResult;
@@ -75,6 +128,13 @@ export default function Home() {
         <p className="text-sm leading-6 text-zinc-300">
           输入一个 Web3 概念问题（如钱包/Gas/DeFi/NFT）。系统会先从本地可信资料库检索，再生成通俗、结构化的解释，并附上参考来源链接。
         </p>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+          <a href="/library" className="text-sky-300 hover:underline">
+            打开资料库
+          </a>
+          <span>·</span>
+          <span>资料来源：`data/sources.json` + `library/notes`（自动纳入索引）</span>
+        </div>
       </header>
 
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4">
@@ -87,6 +147,39 @@ export default function Home() {
           placeholder="例如：什么是钱包？助记词丢了会怎样？"
           className="h-28 w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-sm leading-6 outline-none ring-0 placeholder:text-zinc-500 focus:border-zinc-600"
         />
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="text-xs text-zinc-400">邀请码（可选）</div>
+          <input
+            value={demoPass}
+            onChange={(e) => {
+              const v = e.target.value;
+              setDemoPass(v);
+              try {
+                if (v.trim()) localStorage.setItem("web3_demo_pass", v);
+                else localStorage.removeItem("web3_demo_pass");
+              } catch {
+                // ignore
+              }
+            }}
+            placeholder="部署者开启口令时填写（比如：abc123）"
+            className="min-w-[240px] flex-1 rounded-xl border border-zinc-800 bg-zinc-900/40 px-3 py-2 text-xs text-zinc-200 outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setDemoPass("");
+              try {
+                localStorage.removeItem("web3_demo_pass");
+              } catch {
+                // ignore
+              }
+            }}
+            className="rounded-xl border border-zinc-800 bg-zinc-900/20 px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-900/40"
+          >
+            清除邀请码
+          </button>
+        </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
@@ -125,21 +218,53 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="mb-2 text-xs font-medium text-zinc-400">示例问题</div>
-          <div className="flex flex-wrap gap-2">
-            {SAMPLE_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                onClick={() => {
-                  setQuestion(q);
-                  void onAsk(q);
-                }}
-                className="rounded-full border border-zinc-800 bg-zinc-900/20 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-900/40"
-              >
-                {q}
-              </button>
-            ))}
+        <div className="mt-4 space-y-4">
+          <div>
+            <div className="mb-2 text-xs font-medium text-zinc-400">示例问题（内置）</div>
+            <div className="flex flex-wrap gap-2">
+              {SAMPLE_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => {
+                    setQuestion(q);
+                    void onAsk(q);
+                  }}
+                  className="rounded-full border border-zinc-800 bg-zinc-900/20 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-900/40"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-xs font-medium text-zinc-400">
+                推荐问题（来自你上传的资料库笔记 · 自动更新）
+              </div>
+              {qa ? (
+                <div className="text-[11px] text-zinc-500">
+                  共 {qa.total} 条
+                </div>
+              ) : (
+                <div className="text-[11px] text-zinc-500">加载中…</div>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(qa?.items ?? []).slice(0, 16).map((it) => (
+                <button
+                  key={`${it.question}::${it.sourceUrl}`}
+                  onClick={() => {
+                    setQuestion(it.question);
+                    void onAsk(it.question);
+                  }}
+                  title={`来源：${it.sourceTitle}`}
+                  className="rounded-full border border-zinc-800 bg-zinc-900/10 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-900/40"
+                >
+                  {it.question}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
