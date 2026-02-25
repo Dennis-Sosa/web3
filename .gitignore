@@ -39,6 +39,9 @@ yarn-error.log*
 # local data / outputs
 /outputs
 
+# github cli auth/config (keep tokens out of git)
+/.gh
+
 # vercel
 .vercel
 
