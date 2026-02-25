@@ -1,0 +1,276 @@
+[
+  {
+    "id": "ethereum-wallets",
+    "title": "ethereum.org — Wallets",
+    "url": "https://ethereum.org/en/wallets/",
+    "tags": ["wallet", "seed phrase", "private key", "beginner"],
+    "content": "钱包（wallet）通常不是“存币的地方”，更像是“管理你账户钥匙的工具”。它让你能创建并使用地址、签名交易、连接去中心化应用（dApp）。\n\n助记词（seed phrase / recovery phrase）是一串单词，用来恢复你的钱包。谁拿到助记词，通常就等于能控制钱包里的资产。\n\n私钥（private key）是更底层的“钥匙”，助记词往往可以推导出私钥。不要把助记词/私钥发给任何人，也不要在陌生网站输入。"
+  },
+  {
+    "id": "ethereum-gas",
+    "title": "ethereum.org — Gas and fees",
+    "url": "https://ethereum.org/en/developers/docs/gas/",
+    "tags": ["gas", "fee", "transaction", "beginner"],
+    "content": "Gas 可以理解为“在区块链上执行操作需要的计算量计价单位”。你发起转账/交互合约时，网络需要矿工/验证者执行计算并把结果写入区块链，所以会收取手续费（fee）。\n\n手续费通常用 ETH 支付，费用的高低会随着网络拥堵变化。简单转账一般更便宜，复杂合约交互通常更贵。\n\n常见概念：Gas limit 像“最多愿意消耗的油量上限”，Gas price 像“每单位油多少钱”。"
+  },
+  {
+    "id": "eip-1559",
+    "title": "ethereum.org — EIP-1559 fee market",
+    "url": "https://ethereum.org/en/developers/docs/gas/#eip-1559",
+    "tags": ["eip-1559", "base fee", "tip", "gas"],
+    "content": "以太坊的 EIP-1559 机制把手续费拆成两部分：Base fee（基础费，随拥堵动态变化，且会被销毁）和 Priority fee / tip（小费，用来激励打包者更快处理）。\n\n对新手来说，你大多只需要知道：钱包里看到的“建议费用”通常已经把这些细节打包好了；当网络很挤时，费用会上升。"
+  },
+  {
+    "id": "ethereum-defi",
+    "title": "ethereum.org — DeFi (Decentralized finance)",
+    "url": "https://ethereum.org/en/defi/",
+    "tags": ["defi", "lending", "dex", "beginner"],
+    "content": "DeFi（去中心化金融）是一类在区块链上用智能合约提供的金融服务，比如兑换（DEX）、借贷、收益策略等。\n\n它的核心差异是：规则写在合约里，通常不需要传统机构作为中介；但也因此更依赖代码安全、合约风险和你自己的操作安全。\n\n新手常见入口是 DEX 兑换（swap）或把资产存入借贷协议（lending），但要先理解“合约风险”和“授权（approve）”。"
+  },
+  {
+    "id": "ethereum-nft",
+    "title": "ethereum.org — NFTs",
+    "url": "https://ethereum.org/en/nft/",
+    "tags": ["nft", "token", "erc-721", "beginner"],
+    "content": "NFT（Non-Fungible Token，非同质化代币）是一种“每个都不一样”的代币，常用来表示数字收藏品、门票、会员资格或游戏道具等。\n\n重要点：NFT 不是“图片本身”，而是链上的一种所有权/指向关系（例如指向元数据或内容地址）。不同项目把数据存哪里、能否长期访问，差异很大。\n\n新手常见误区：把“买到一张图”等同于获得版权/收益承诺。多数情况下你买到的是一种链上凭证，不等于版权。"
+  },
+  {
+    "id": "ethereum-smart-contracts",
+    "title": "ethereum.org — Smart contracts",
+    "url": "https://ethereum.org/en/developers/docs/smart-contracts/",
+    "tags": ["smart contract", "dapp", "beginner"],
+    "content": "智能合约可以理解为“部署在区块链上的程序”。它一旦部署，代码和状态会被很多节点共同保存和执行。\n\n合约让 dApp 可以在没有中心服务器的情况下运行某些逻辑（例如交易撮合、借贷清算）。但缺点是：代码出错会很难修改，且一旦被利用可能造成资产损失。\n\n因此合约审计、权限设计和风险提示在 Web3 里非常重要。"
+  },
+  {
+    "id": "metamask-security",
+    "title": "MetaMask — Security and privacy",
+    "url": "https://support.metamask.io/",
+    "tags": ["metamask", "security", "seed phrase", "scam"],
+    "content": "常见安全原则：不要分享助记词/私钥；警惕假网站与假客服；对“授权（approve）”保持敏感；尽量使用硬件钱包或隔离的钱包来管理大额资产。\n\n当你连接 dApp 时，通常会发生两类动作：1) 只读连接（查看地址等）；2) 需要你签名的动作（可能是交易，也可能是签名消息）。签名并不一定花 gas，但可能被用来证明你同意某些操作。\n\n遇到不确定的签名请求，先拒绝/取消，回去确认来源。"
+  },
+  {
+    "id": "openzeppelin-erc20",
+    "title": "OpenZeppelin Docs — ERC20",
+    "url": "https://docs.openzeppelin.com/contracts/",
+    "tags": ["erc20", "token", "approval", "allowance"],
+    "content": "ERC-20 是一种常见的“同质化代币”标准（每个单位都一样）。很多代币、稳定币都遵循它。\n\n授权（approve）/额度（allowance）是 ERC-20 常见机制：你允许某个合约在额度范围内转走你的代币，用于兑换、借贷等。\n\n新手常见坑：一次性给很大的授权额度，可能在合约被攻击或被恶意升级时带来风险。"
+  },
+  {
+    "id": "ethereum-layer2",
+    "title": "ethereum.org — Layer 2",
+    "url": "https://ethereum.org/en/layer-2/",
+    "tags": ["layer2", "rollup", "scaling", "bridge"],
+    "content": "Layer 2（L2）可以理解为“在以太坊主网（L1）之上做扩容的网络”，目标通常是更便宜、更快。\n\n很多 L2 使用 rollup 技术：在 L2 上处理大量交易，然后把摘要/证明发布到 L1。\n\n新手需要注意：把资产从 L1/L2 之间转移通常要用桥（bridge），桥的安全性和官方入口很重要，手续费和到账时间也可能不同。"
+  },
+  {
+    "id": "ethereum-stablecoins",
+    "title": "ethereum.org — Stablecoins",
+    "url": "https://ethereum.org/en/stablecoins/",
+    "tags": ["stablecoin", "usdc", "usdt", "risk"],
+    "content": "稳定币（stablecoin）是价格目标通常锚定法币（如美元）的代币，用于更稳定的计价、转账和 DeFi 交互。\n\n稳定币并不等于“无风险”：不同稳定币有不同机制（法币储备、超额抵押、算法机制等），存在发行方风险、监管风险、脱锚风险、合约风险等。\n\n新手建议先搞清楚你使用的稳定币属于哪一类、由谁发行、如何赎回、在哪条链上流通。"
+  },
+  {
+    "id": "polebug-web3-2025-learning-plan",
+    "title": "polebug — 分享 web3 入门计划（2025 版）",
+    "url": "https://polebug.github.io/2025/07/05/web3_2025/",
+    "tags": ["learning plan", "beginner", "roadmap", "how to learn", "protocol", "dapp"],
+    "content": "一个偏“学习路线图”的入门计划：先建立协议层（区块链/密码学/共识/交易）基础，再理解智能合约与执行环境，然后再看各赛道 DApp（DeFi/NFT/L2 等），最后再动手做 DApp。\n\n对新手来说，这个顺序的价值是：先把“钱包/交易/手续费/安全”这些通用概念学扎实，再去看任何项目文档会更顺。\n\n提示：路线图不是权威定义，但适合用来规划自己的学习节奏与材料清单。"
+  },
+  {
+    "id": "bitcoin-whitepaper-intro",
+    "title": "Bitcoin Whitepaper — Introduction",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "whitepaper", "p2p", "double spend", "beginner"],
+    "content": "比特币白皮书的核心目标之一：用“密码学证明”而不是“信任中介”来完成电子支付。它希望让两个人可以直接转账，不必依赖银行等第三方来防止“双花”（同一笔钱花两次）。\n\n一个直观理解：区块链像一本公开账本，所有人都在同步和验证“谁把钱转给谁”。"
+  },
+  {
+    "id": "bitcoin-whitepaper-transactions",
+    "title": "Bitcoin Whitepaper — Transactions (chain of signatures)",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "transaction", "signature", "ownership", "utxo"],
+    "content": "白皮书把“币”描述为一串数字签名的链：每次转账都用当前所有者的私钥签名，把控制权转给下一个人。收款方可以验证签名链来确认“这笔币的所有权是怎么传过来的”。\n\n新手要点：这里的“拥有”不是拿着一张纸，而是“你能用私钥证明你有权花这笔钱”。"
+  },
+  {
+    "id": "bitcoin-whitepaper-pow-consensus",
+    "title": "Bitcoin Whitepaper — Proof-of-Work & longest chain",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "pow", "consensus", "blockchain", "longest chain", "51%"],
+    "content": "白皮书用工作量证明（PoW）来解决“大家如何在没有中心机构时达成一致”的问题：节点把交易打包成区块，通过做计算成本很高、验证成本很低的工作来竞争出块。\n\n系统通常把“累计工作量最多/最长的链”当作当前有效历史。直观上：想篡改历史，需要重做大量计算并追上全网，这会很难（尤其当大多数算力是诚实的）。"
+  },
+  {
+    "id": "ethereum-org-whitepaper-note",
+    "title": "ethereum.org — Ethereum Whitepaper（官方提示：不完全代表今天的以太坊）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "whitepaper", "smart contract", "history", "beginner"],
+    "content": "ethereum.org 明确提示：以太坊白皮书写于 2014 年，很多内容不完全反映今天的以太坊（例如已从 PoW 转为 PoS、L2 生态成熟等）。但它仍然有价值：帮助你理解“以太坊为什么要做智能合约平台、它的核心愿景是什么”。\n\n新手建议：把它当作“设计理念与基础概念”的参考，而不是最新技术细节的唯一依据。"
+  },
+  {
+    "id": "ethereum-whitepaper-accounts",
+    "title": "Ethereum Whitepaper — Accounts (EOA vs contract)",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "account model", "eoa", "contract account", "state"],
+    "content": "以太坊的一个关键抽象是“账户（account）”：外部账户（EOA）由私钥控制；合约账户由合约代码控制。交易会触发状态变化：转账、执行合约代码、读写存储等。\n\n对新手的意义：以太坊更像一个“全网共享的状态机/计算平台”，不仅仅是记账转账。"
+  },
+  {
+    "id": "ethereum-whitepaper-gas",
+    "title": "Ethereum Whitepaper — Gas (anti-DoS, pay for compute)",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "gas", "fee", "compute", "dos"],
+    "content": "白皮书把 gas 描述为限制与计价计算资源的机制：交易设置可用的最大 gas（类似“最多愿意消耗的计算预算”），用 gasprice 计价。这样可以避免合约无限循环/滥用资源（反 DoS），同时让使用更多计算/存储的人支付更多费用。\n\n新手直觉：gas 不是“给某个人的小费”，而是“为全网执行你的操作买单”。"
+  },
+  {
+    "id": "solana-whitepaper-poh",
+    "title": "Solana Whitepaper — Proof of History (PoH) 概念",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "whitepaper", "poh", "time", "ordering", "beginner"],
+    "content": "Solana 白皮书提出 PoH（Proof of History）：通过一串必须顺序计算的哈希序列，来提供“可验证的时间流逝/事件顺序”线索。这样在与共识机制配合时，可能减少消息协调成本，提高吞吐与确认速度。\n\n新手要点：PoH 不是单独的共识（并不等于 PoW/PoS），更像一种“把顺序与时间编码进账本”的工具。"
+  },
+  {
+    "id": "bitcoin-whitepaper-abstract",
+    "title": "Bitcoin Whitepaper — Abstract（点对点电子现金）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "whitepaper", "abstract", "p2p", "digital signatures"],
+    "content": "摘要强调：比特币想做的是“点对点电子现金”，让在线支付可以从付款方直接到收款方，不必经过金融机构。数字签名解决“谁有权花这笔钱”，而共识机制用来解决“双花”。"
+  },
+  {
+    "id": "bitcoin-whitepaper-double-spend",
+    "title": "Bitcoin Whitepaper — Double-spending（双花问题）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "double spend", "consensus", "problem"],
+    "content": "白皮书指出：如果没有中心机构，收款方需要知道“同一笔钱有没有被别人先花过”。要做到这一点，必须有一种方法让全网对交易先后顺序达成一致。"
+  },
+  {
+    "id": "bitcoin-whitepaper-timestamp-server",
+    "title": "Bitcoin Whitepaper — Timestamp Server（时间戳链）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "timestamp", "hash chain", "immutability"],
+    "content": "时间戳服务器的直觉：把一批数据哈希后公开发布，并把上一次的哈希也包含进来，形成“哈希链”。后面的哈希会强化前面的记录，让篡改历史需要重做后续所有工作。"
+  },
+  {
+    "id": "bitcoin-whitepaper-network-steps",
+    "title": "Bitcoin Whitepaper — Network（出块与确认的流程）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "network", "block", "mining", "broadcast"],
+    "content": "白皮书用一个流程解释网络如何运转：交易广播→节点收集成区块→节点做 PoW→找到解就广播区块→其他节点验证并接受→继续在已接受区块上工作。新手把它理解成“大家不断把新账页盖章并接到最后一页”。"
+  },
+  {
+    "id": "bitcoin-whitepaper-incentive",
+    "title": "Bitcoin Whitepaper — Incentive（区块奖励与手续费）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "incentive", "coinbase", "fees"],
+    "content": "激励机制：区块里的第一笔交易通常给出块者发放区块奖励；另外用户也可以支付手续费。直觉：奖励和手续费鼓励节点投入算力维护网络。"
+  },
+  {
+    "id": "bitcoin-whitepaper-merkle-tree",
+    "title": "Bitcoin Whitepaper — Merkle Tree（用根哈希压缩证明）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "merkle tree", "hash", "proof"],
+    "content": "Merkle Tree 让区块不必在“证明某笔交易存在”时提供全部交易：只要提供一条从交易到根哈希的路径，就能验证该交易被包含在区块里（在不泄露/不下载全部数据的情况下）。"
+  },
+  {
+    "id": "bitcoin-whitepaper-spv",
+    "title": "Bitcoin Whitepaper — SPV（轻节点如何验证）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "spv", "light client", "block header"],
+    "content": "SPV（简化支付验证）允许不跑全节点也能做一定验证：轻节点只下载区块头并验证工作量，再用 Merkle 证明把“某笔交易”链接到某个区块里。直觉：不用保存全账本也能有较强把握。"
+  },
+  {
+    "id": "bitcoin-whitepaper-privacy",
+    "title": "Bitcoin Whitepaper — Privacy（公开账本与匿名性）",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "tags": ["bitcoin", "privacy", "public keys", "pseudonymous"],
+    "content": "白皮书谈到隐私：交易记录是公开的，但地址（公钥）可以不直接绑定真实身份；并建议每笔交易用新地址来降低关联性。新手要点：链上是“可追踪的公开数据”，隐私更多依赖使用方式。"
+  },
+  {
+    "id": "ethereum-whitepaper-purpose",
+    "title": "Ethereum Whitepaper — Why Ethereum（可编程的智能合约平台）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "whitepaper", "purpose", "smart contract", "dapp"],
+    "content": "以太坊白皮书的核心目标：提供一个带“图灵完备语言”的区块链，让开发者可以写智能合约，构建各种去中心化应用（dApp），而不仅仅是转账记账。"
+  },
+  {
+    "id": "ethereum-whitepaper-state-transition",
+    "title": "Ethereum Whitepaper — State transition（状态机视角）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "state transition", "ledger", "model"],
+    "content": "白皮书把区块链看作“状态转换系统”：给定当前状态 S 和交易 TX，执行后得到新状态 S' 或报错。新手直觉：链不是“存文件”，而是“全网同步的一台状态机”。"
+  },
+  {
+    "id": "ethereum-whitepaper-utxo-vs-accounts",
+    "title": "Ethereum Whitepaper — UTXO vs Accounts（两种账本模型）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "bitcoin", "utxo", "account model", "compare"],
+    "content": "白皮书对比了思路：比特币偏 UTXO（未花费输出）集合；以太坊用账户模型（账户余额 + 合约存储）。对新手来说：你在以太坊看到的“余额/nonce/合约存储”，和比特币的“找零钱式 UTXO”是不同抽象。"
+  },
+  {
+    "id": "ethereum-whitepaper-transactions-vs-messages",
+    "title": "Ethereum Whitepaper — Transactions vs Messages（外部交易与合约消息）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "transaction", "message", "call", "contract"],
+    "content": "白皮书区分：外部账户发起的是“交易（transaction）”；合约内部调用其他合约的是“消息（message）”。新手直觉：你点一次操作，可能触发合约之间多次内部调用。"
+  },
+  {
+    "id": "ethereum-whitepaper-gas-revert",
+    "title": "Ethereum Whitepaper — Out of gas & revert（为什么失败也可能付费）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "gas", "revert", "out of gas", "fee"],
+    "content": "白皮书描述了一个重要规则：执行超出 gas 限额会停止并回滚状态变化，但消耗的计算资源仍需要付费。新手直觉：失败不等于“没消耗资源”。"
+  },
+  {
+    "id": "ethereum-whitepaper-evm-state",
+    "title": "Ethereum Whitepaper — EVM execution（stack/memory/storage）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "evm", "stack", "memory", "storage"],
+    "content": "白皮书解释合约执行环境常见三类数据区：stack（临时栈）、memory（执行期内存）、storage（长期存储，写入更贵）。新手要点：storage 是“链上状态”，改它更贵也更敏感。"
+  },
+  {
+    "id": "ethereum-whitepaper-all-nodes-execute",
+    "title": "Ethereum Whitepaper — 谁在执行合约？（答案：所有验证节点）",
+    "url": "https://ethereum.org/whitepaper/",
+    "tags": ["ethereum", "contract execution", "validators", "consensus"],
+    "content": "白皮书强调：合约代码的执行是“状态转换规则”的一部分，因此区块里包含的交易会被所有验证节点执行（现在与未来验证该区块的节点都要执行一遍），这也是 gas/资源计价存在的原因之一。"
+  },
+  {
+    "id": "solana-whitepaper-abstract",
+    "title": "Solana Whitepaper — Abstract（PoH 降低协调开销）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "whitepaper", "abstract", "poh", "throughput"],
+    "content": "摘要提出：PoH 用来提供可验证的时间与顺序线索，配合共识（如 PoS）可减少拜占庭容错系统里的消息协调开销，从而提升吞吐与确认速度。"
+  },
+  {
+    "id": "solana-whitepaper-leader-verifier",
+    "title": "Solana Whitepaper — Leader & Verifiers（角色分工）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "leader", "verifier", "design"],
+    "content": "白皮书描述的流程：某个节点成为 Leader 生成 PoH 序列并排序交易、执行到当前状态，再把交易与状态签名发布给 Verifiers；Verifiers 复算并提交确认（投票）参与共识。"
+  },
+  {
+    "id": "solana-whitepaper-poh-sequence",
+    "title": "Solana Whitepaper — PoH Sequence（必须顺序计算的哈希链）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "poh", "hash", "sequence"],
+    "content": "PoH 的直觉：选择一个不可预测的哈希函数，把上一次输出作为下一次输入反复计算，并记录索引。因为无法跳步预测，所以可以用它来证明“确实经过了时间/确实按顺序发生”。"
+  },
+  {
+    "id": "solana-whitepaper-poh-timestamp-events",
+    "title": "Solana Whitepaper — Timestamp for events（把事件混入序列）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "poh", "timestamp", "ordering"],
+    "content": "白皮书说明：可以把事件数据（或其哈希）混入 PoH 序列的状态里，之后的哈希值都会被改变，因此可证明该事件发生在某个索引之前，从而建立事件顺序。"
+  },
+  {
+    "id": "solana-whitepaper-poh-verification",
+    "title": "Solana Whitepaper — Verification（验证可并行加速）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "poh", "verification", "parallel"],
+    "content": "白皮书强调：生成 PoH 必须顺序，但验证可以切片并行——把哈希序列分段分配给多核/多 GPU core 验证，从而比生成更快地确认序列正确。"
+  },
+  {
+    "id": "solana-whitepaper-horizontal-scaling",
+    "title": "Solana Whitepaper — Horizontal scaling（多个生成器同步）",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "tags": ["solana", "poh", "scaling", "synchronization"],
+    "content": "白皮书提到一种思路：多个 PoH 生成器可以互相混入对方状态来同步，从而分担外部事件输入（提高吞吐）。代价是更复杂的同步与可用性取舍。"
+  }
+]
+
