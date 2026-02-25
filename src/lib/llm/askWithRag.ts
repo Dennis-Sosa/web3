@@ -22,23 +22,37 @@ function uniqueSources(chunks: RetrievedChunk[]) {
   return out;
 }
 
-function buildFallbackAnswer(question: string, retrieved: { title: string; url: string; content: string }[]) {
+function buildFallbackAnswer(
+  question: string,
+  retrieved: { title: string; url: string; content: string }[],
+  meta?: { reason?: "no_api_key" | "llm_error"; detail?: string },
+) {
+  const reasonLine =
+    meta?.reason === "llm_error"
+      ? `大模型调用失败，已自动降级为检索摘要。${meta.detail ? `（${meta.detail}）` : ""}`
+      : "当前未启用大模型生成（未配置 OPENAI_API_KEY），已自动降级为检索摘要。";
+
   const refs = retrieved
     .map((s, i) => `- [${i + 1}] ${s.title} — ${s.url}`)
     .join("\n");
-  const excerpts = retrieved
-    .slice(0, 5)
-    .map((s, i) => `- [${i + 1}] ${s.content}`)
-    .join("\n");
+  const excerpts = retrieved.slice(0, 5);
+  const excerptBullets = excerpts.map((s, i) => `- [${i + 1}] ${s.content}`).join("\n");
+
+  const top = excerpts[0]?.content?.trim();
+  const oneLiner = top
+    ? top.split(/\n+/)[0]?.trim()
+    : "我在资料库里没有检索到足够信息来直接回答这个问题。";
 
   return `## 一句话结论
-我目前没有配置大模型密钥，所以只能先把资料库检索到的相关内容整理给你（仍然是学习用途，不构成任何投资建议）。
+${oneLiner}
+
+> 注：${reasonLine}
 
 ## 概念解释（小白版）
-你问的是：**${question}**。\n\n下面是资料库里最相关的摘录（你可以先对照理解关键词）：\n${excerpts || "- （未检索到相关资料片段）"}
+你问的是：**${question}**。\n\n下面是资料库里最相关的摘录（你可以先对照理解关键词）：\n${excerptBullets || "- （未检索到相关资料片段）"}
 
 ## 为什么重要
-当你把这些概念搞清楚，就更不容易被术语吓到，也更能看懂钱包/交易页面在做什么。
+从资料片段能确认：这类概念通常和“区块链如何达成一致 / 交易如何被确认 / 为什么安全”相关。理解它们能帮助你看懂链上交易页面、费用提示与安全风险。
 
 ## 常见误区 / 风险提醒
 - 不要把“概念理解”当作“收益承诺”。Web3 有真实风险。
@@ -46,8 +60,8 @@ function buildFallbackAnswer(question: string, retrieved: { title: string; url: 
 - 连接 dApp 或签名/授权前，先确认域名与操作内容。
 
 ## 下一步怎么学
-- 配置 **OPENAI_API_KEY** 后再问一次，同一个问题会得到更结构化的解释
-- 先从“钱包/助记词/私钥”“Gas/手续费”“授权 approve”三件事学起
+- 把问题写完整一点（例如“PoW 是什么？它怎么帮助达成共识？”），检索命中会更准
+- 从“钱包/助记词/私钥”“Gas/手续费”“授权 approve”三件事学起
 - 只用官方/知名教程入口，避免搜到钓鱼站
 
 ## 参考来源
@@ -81,7 +95,7 @@ export async function askWithRag(question: string, retrievedChunks: RetrievedChu
 
   if (!apiKey) {
     return {
-      answerMarkdown: buildFallbackAnswer(question, retrieved),
+      answerMarkdown: buildFallbackAnswer(question, retrieved, { reason: "no_api_key" }),
       sources: retrieved.map((s) => ({ title: s.title, url: s.url })),
       usedModel: null,
       mode: "fallback",
@@ -122,8 +136,8 @@ export async function askWithRag(question: string, retrievedChunks: RetrievedChu
 
     return {
       answerMarkdown:
-        buildFallbackAnswer(question, retrieved) +
-        `\n\n> 注：${short}\n> 详细：${msg}`,
+        buildFallbackAnswer(question, retrieved, { reason: "llm_error", detail: short }) +
+        `\n\n> 详细：${msg}`,
       sources: retrieved.map((s) => ({ title: s.title, url: s.url })),
       usedModel: null,
       mode: "fallback",
