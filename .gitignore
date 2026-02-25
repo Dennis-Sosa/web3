@@ -30,8 +30,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files (keep secrets out of git)
+.env
+.env.*
+.env*.local
+!.env.example
 
 # local data / outputs
 /outputs
