@@ -2,7 +2,7 @@
 
 本资料库用于沉淀原始资料与结构化笔记，便于长期检索与复习。
 
-## 本批资料：Cornell Tech · NBAY 5710（SP26）Cryptocurrencies and Blockchains
+## 本批资料 1：Cornell Tech · NBAY 5710（SP26）Cryptocurrencies and Blockchains
 
 - **Instructor**: Ari Juels  
 - **时间范围**: 2026-01-21 ～ 2026-02-23  
@@ -15,6 +15,18 @@
 3. **L05-L06**：挖矿产业化、矿池与能耗；PoW vs PoS；托管与密钥管理难题  
 4. **L07-L08**：钱包工程细节（助记词、HD、多签、冷热、MPC）→ 智能合约抽象与 Gas  
 5. **L09**：预言机为何是 DeFi 基础设施、如何去中心化与抗异常值、VRF
+
+## 本批资料 2：Princeton · Bitcoin and Cryptocurrency Technologies（Textbook）
+
+- **类型**：教材（textbook）  
+- **定位**：配合 NBAY 5710 课件使用的“主线参考书 + 细节字典”  
+- **总览笔记**：[`Princeton_Bitcoin-Book.md`](./notes/Princeton_Bitcoin-Book.md)  
+- **精要笔记（高密度关键词，利于 RAG 命中）**：  
+  - [01 · 电子现金与去中心化](./notes/princeton-bitcoin/01-e-cash-decentralization.md)  
+  - [02 · UTXO 与交易结构](./notes/princeton-bitcoin/02-utxo-transactions.md)  
+  - [03 · 挖矿与激励](./notes/princeton-bitcoin/03-mining-incentives.md)  
+  - [04 · 钱包与隐私](./notes/princeton-bitcoin/04-wallets-privacy.md)  
+  - [05 · 治理、分叉与替代币](./notes/princeton-bitcoin/05-governance-altcoins.md)
 
 ## 目录（原件 + 笔记）
 
@@ -35,6 +47,15 @@
 | L07 | 钱包底层；多签与托管；BIP39 助记词；HD 钱包；冷热存储；MPC；智能合约引子 | [raw/L07_Wallets-Smart-Contracts_2026-02-11.pdf](./raw/cornell-tech-nbay5710-sp26/L07_Wallets-Smart-Contracts_2026-02-11.pdf) | [notes/L07](./notes/cornell-tech-nbay5710-sp26/L07_Wallets-Smart-Contracts_2026-02-11.md) |
 | L08 | 智能合约特性（不可变/透明/可组合）；Gas 与 EIP-1559；区块构建；预言机引入 | [raw/L08_Smart-Contracts-Oracles_2026-02-18.pdf](./raw/cornell-tech-nbay5710-sp26/L08_Smart-Contracts-Oracles_2026-02-18.pdf) | [notes/L08](./notes/cornell-tech-nbay5710-sp26/L08_Smart-Contracts-Oracles_2026-02-18.md) |
 | L09 | 预言机（数据上链）；去中心化与 liveness；数值聚合与 medianization；VRF | [raw/L09_Oracles_2026-02-23.pdf](./raw/cornell-tech-nbay5710-sp26/L09_Oracles_2026-02-23.pdf) | [notes/L09](./notes/cornell-tech-nbay5710-sp26/L09_Oracles_2026-02-23.md) |
+
+## 本批资料 3：Web3 基础概念（小白入门笔记）
+
+- **定位**：覆盖示例问题中涉及的 DeFi / NFT / Layer 2 / 稳定币主题，作为 Cornell & Princeton 课件的补充
+- **笔记列表**：
+  - [DeFi（去中心化金融）](./notes/web3-basics/defi.md)
+  - [NFT（非同质化代币）](./notes/web3-basics/nft.md)
+  - [Layer 2（二层网络）](./notes/web3-basics/layer2.md)
+  - [稳定币（Stablecoin）](./notes/web3-basics/stablecoins.md)
 
 ## 元数据（可机器检索）
 

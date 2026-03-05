@@ -13,7 +13,7 @@ type RagIndex = {
 };
 
 // Bump this whenever you change tokenization / fields / ranking logic that requires a rebuild.
-const RAG_INDEX_SCHEMA_VERSION = "2-cjk-ngram-coverage";
+const RAG_INDEX_SCHEMA_VERSION = "3-chunk-size-bounds";
 
 declare global {
   var __web3_rag_index:

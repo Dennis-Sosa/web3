@@ -2,6 +2,19 @@ import OpenAI from "openai";
 import { SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, buildUserPrompt } from "@/lib/prompts";
 import type { RetrievedChunk } from "@/lib/rag/types";
 
+export type StreamEvent =
+  | {
+      type: "meta";
+      sources: { title: string; url: string }[];
+      mode: "llm" | "fallback";
+      usedModel: string | null;
+      retrievedCount: number;
+      retrieved?: { score: number; title: string; url: string; content: string }[];
+    }
+  | { type: "delta"; text: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
+
 export type AskResponse = {
   answerMarkdown: string;
   sources: { title: string; url: string }[];
@@ -180,3 +193,73 @@ export async function askWithRag(question: string, retrievedChunks: RetrievedChu
   }
 }
 
+export async function* streamWithRag(
+  question: string,
+  retrievedChunks: RetrievedChunk[],
+  opts?: { debug?: boolean },
+): AsyncGenerator<StreamEvent> {
+  const retrieved = uniqueSources(retrievedChunks);
+  const sources = retrieved.map((s) => ({ title: s.title, url: s.url }));
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const model = (process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini").trim();
+
+  const metaBase = {
+    sources,
+    retrievedCount: retrievedChunks.length,
+    ...(opts?.debug
+      ? {
+          retrieved: retrievedChunks.map((c) => ({
+            score: c.score,
+            title: c.title,
+            url: c.url,
+            content: c.content,
+          })),
+        }
+      : {}),
+  };
+
+  if (!apiKey) {
+    yield { type: "meta", ...metaBase, mode: "fallback", usedModel: null };
+    yield { type: "delta", text: buildFallbackAnswer(question, retrieved, { reason: "no_api_key" }) };
+    yield { type: "done" };
+    return;
+  }
+
+  yield { type: "meta", ...metaBase, mode: "llm", usedModel: model };
+
+  const client = new OpenAI({ apiKey });
+  const hasHits = retrieved.length > 0;
+  const systemPrompt = hasHits ? SYSTEM_PROMPT : SYSTEM_PROMPT_NO_SOURCES;
+  const userPrompt = hasHits ? buildUserPrompt(question, retrieved) : buildNoHitApiUserPrompt(question);
+
+  try {
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.2,
+      stream: true,
+    });
+
+    for await (const chunk of completion) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) yield { type: "delta", text };
+    }
+
+    yield { type: "done" };
+  } catch (err: unknown) {
+    const status = extractStatus(err);
+    const msg = extractMessage(err);
+    const short =
+      status === 429
+        ? "大模型调用被限额/额度不足（429）。请检查 OpenAI 计费与额度。"
+        : "大模型调用失败，已自动降级为检索摘要。";
+    yield {
+      type: "delta",
+      text: buildFallbackAnswer(question, retrieved, { reason: "llm_error", detail: short }) + `\n\n> 详细：${msg}`,
+    };
+    yield { type: "done" };
+  }
+}

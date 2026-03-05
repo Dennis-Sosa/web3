@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { retrieveChunks } from "@/lib/rag/index";
-import { askWithRag } from "@/lib/llm/askWithRag";
+import { streamWithRag } from "@/lib/llm/askWithRag";
 
 export const runtime = "nodejs";
 
@@ -54,6 +54,8 @@ function checkRateLimit(ip: string) {
   const state = getRateLimitState();
   const hits = state.get(ip) ?? [];
   const kept = hits.filter((t) => t > cutoff);
+
+  if (kept.length === 0) state.delete(ip);
 
   if (kept.length >= effectiveMax) {
     const oldest = kept[0] ?? now;
@@ -135,35 +137,37 @@ export async function POST(req: Request) {
 
     const question = parsed.data.question.trim();
     const retrieved = await retrieveChunks(question, 6);
-    const result = await askWithRag(question, retrieved);
 
-    return NextResponse.json(
-      {
-        question,
-        answerMarkdown: result.answerMarkdown,
-        sources: result.sources,
-        mode: result.mode,
-        usedModel: result.usedModel,
-        retrievedCount: retrieved.length,
-        ...(debug
-          ? {
-              retrieved: retrieved.map((c) => ({
-                score: c.score,
-                title: c.title,
-                url: c.url,
-                content: c.content,
-              })),
-            }
-          : {}),
+    const encoder = new TextEncoder();
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+
+    void (async () => {
+      try {
+        for await (const event of streamWithRag(question, retrieved, { debug })) {
+          await writer.write(encoder.encode("data: " + JSON.stringify(event) + "\n\n"));
+        }
+      } catch (e) {
+        await writer.write(
+          encoder.encode(
+            "data: " + JSON.stringify({ type: "error", message: e instanceof Error ? e.message : String(e) }) + "\n\n",
+          ),
+        );
+      } finally {
+        await writer.close();
+      }
+    })();
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no",
+        "X-RateLimit-Limit": String(rl.limit),
+        "X-RateLimit-Remaining": String(rl.remaining),
+        "X-RateLimit-Window": String(rl.windowMs),
       },
-      {
-        headers: {
-          "X-RateLimit-Limit": String(rl.limit),
-          "X-RateLimit-Remaining": String(rl.remaining),
-          "X-RateLimit-Window": String(rl.windowMs),
-        },
-      },
-    );
+    });
   } catch (e: unknown) {
     return NextResponse.json(
       { error: "Server error", message: e instanceof Error ? e.message : String(e) },
@@ -171,4 +175,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

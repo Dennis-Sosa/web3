@@ -1,5 +1,17 @@
 [
   {
+    "id": "princeton-bitcoin-textbook",
+    "collection": "princeton-bitcoin-cryptocurrency-technologies",
+    "type": "book",
+    "title": "Bitcoin and Cryptocurrency Technologies",
+    "date": "2016-02-09",
+    "authors": ["Arvind Narayanan", "Joseph Bonneau", "Edward Felten", "Andrew Miller", "Steven Goldfeder"],
+    "tags": ["bitcoin", "cryptocurrency", "textbook", "security", "blockchain", "protocols"],
+    "raw_path": "mvp/library/princeton_bitcoin_book copy.pdf",
+    "note_path": "mvp/library/notes/Princeton_Bitcoin-Book.md",
+    "summary": "系统介绍比特币与加密货币技术，从电子现金历史与动机出发，形式化分析去中心化、安全性与激励机制，并扩展到隐私、altcoins 与去中心化机构等主题。"
+  },
+  {
     "id": "cornell-tech-nbay5710-sp26-l01",
     "collection": "cornell-tech-nbay5710-sp26",
     "lecture_number": 1,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 type AskResult = {
@@ -11,6 +11,19 @@ type AskResult = {
   retrievedCount: number;
   retrieved?: { score: number; title: string; url: string; content: string }[];
 };
+
+type StreamEvent =
+  | {
+      type: "meta";
+      sources: { title: string; url: string }[];
+      mode: "llm" | "fallback";
+      usedModel: string | null;
+      retrievedCount: number;
+      retrieved?: { score: number; title: string; url: string; content: string }[];
+    }
+  | { type: "delta"; text: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
 
 const SAMPLE_QUESTIONS = [
   "什么是钱包？助记词和私钥有什么区别？",
@@ -32,11 +45,13 @@ type QaApiResponse = {
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AskResult | null>(null);
   const [showDebug, setShowDebug] = useState(false);
   const [qa, setQa] = useState<QaApiResponse | null>(null);
   const [demoPass, setDemoPass] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
   const canAsk = useMemo(() => question.trim().length > 0 && !loading, [question, loading]);
 
@@ -70,7 +85,13 @@ export default function Home() {
     const finalQ = (q ?? question).trim();
     if (!finalQ) return;
 
+    // Cancel any in-flight request before starting a new one.
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
+    setStreaming(false);
     setError(null);
     setResult(null);
 
@@ -83,6 +104,7 @@ export default function Home() {
         method: "POST",
         headers,
         body: JSON.stringify({ question: finalQ }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -105,11 +127,53 @@ export default function Home() {
         throw new Error(msg || `HTTP ${res.status}`);
       }
 
-      const data = (await res.json()) as AskResult;
-      setResult(data);
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split("\n\n");
+        buffer = chunks.pop() ?? "";
+
+        for (const chunk of chunks) {
+          const line = chunk.startsWith("data: ") ? chunk.slice(6).trim() : chunk.trim();
+          if (!line) continue;
+          try {
+            const event = JSON.parse(line) as StreamEvent;
+            if (event.type === "meta") {
+              setResult({
+                answerMarkdown: "",
+                sources: event.sources,
+                mode: event.mode,
+                usedModel: event.usedModel,
+                retrievedCount: event.retrievedCount,
+                retrieved: event.retrieved,
+              });
+              setStreaming(true);
+            } else if (event.type === "delta") {
+              setResult((prev) =>
+                prev ? { ...prev, answerMarkdown: prev.answerMarkdown + event.text } : null,
+              );
+            } else if (event.type === "done") {
+              setStreaming(false);
+              setLoading(false);
+            } else if (event.type === "error") {
+              setError(event.message);
+            }
+          } catch {
+            // ignore JSON parse errors
+          }
+        }
+      }
     } catch (e: unknown) {
+      if (e instanceof Error && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : "请求失败");
     } finally {
+      setStreaming(false);
       setLoading(false);
     }
   }
@@ -212,9 +276,12 @@ export default function Home() {
           </label>
 
           <div className="ml-auto text-xs text-zinc-400">
-            {result
-              ? `检索到 ${result.retrievedCount} 条片段 · 模式：${result.mode}${result.usedModel ? ` · 模型：${result.usedModel}` : ""}`
-              : `提示：未配置 OPENAI_API_KEY 时会降级为“检索摘要”${showDebug ? " · debug 已开启" : ""}`}
+            {(() => {
+              if (!result) return `提示：未配置 OPENAI_API_KEY 时会降级为“检索摘要”${showDebug ? ' · debug 已开启' : ''}`;
+              if (streaming) return '正在生成…';
+              const modelPart = result.usedModel ? ' · 模型：' + result.usedModel : '';
+              return `检索到 ${result.retrievedCount} 条片段 · 模式：${result.mode}${modelPart}`;
+            })()}
           </div>
         </div>
 
@@ -279,6 +346,9 @@ export default function Home() {
         <section className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4">
           <div className="prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:tracking-tight prose-a:text-sky-300 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100">
             <ReactMarkdown>{result.answerMarkdown}</ReactMarkdown>
+            {streaming && (
+              <span className="inline-block h-4 w-0.5 animate-pulse bg-zinc-300 align-middle" />
+            )}
           </div>
 
           <div className="mt-6 border-t border-zinc-800 pt-4">
