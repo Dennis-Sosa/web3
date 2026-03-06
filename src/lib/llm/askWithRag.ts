@@ -220,7 +220,8 @@ export async function* streamWithRag(
 
   if (!apiKey) {
     yield { type: "meta", ...metaBase, mode: "fallback", usedModel: null };
-    yield { type: "delta", text: buildFallbackAnswer(question, retrieved, { reason: "no_api_key" }) };
+    const full = buildFallbackAnswer(question, retrieved, { reason: "no_api_key" });
+    for (const chunk of chunkForStreaming(full)) yield { type: "delta", text: chunk };
     yield { type: "done" };
     return;
   }
@@ -256,10 +257,13 @@ export async function* streamWithRag(
       status === 429
         ? "大模型调用被限额/额度不足（429）。请检查 OpenAI 计费与额度。"
         : "大模型调用失败，已自动降级为检索摘要。";
-    yield {
-      type: "delta",
-      text: buildFallbackAnswer(question, retrieved, { reason: "llm_error", detail: short }) + `\n\n> 详细：${msg}`,
-    };
+    const full =
+      buildFallbackAnswer(question, retrieved, { reason: "llm_error", detail: short }) + `\n\n> 详细：${msg}`;
+    for (const chunk of chunkForStreaming(full)) yield { type: "delta", text: chunk };
     yield { type: "done" };
   }
+}
+
+function* chunkForStreaming(text: string, size = 80): Generator<string> {
+  for (let i = 0; i < text.length; i += size) yield text.slice(i, i + size);
 }

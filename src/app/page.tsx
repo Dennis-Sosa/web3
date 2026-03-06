@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type AskResult = {
   answerMarkdown: string;
@@ -344,8 +345,8 @@ export default function Home() {
 
       {result ? (
         <section className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4">
-          <div className="prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:tracking-tight prose-a:text-sky-300 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-h2:text-lg prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3 prose-h2:border-b prose-h2:border-zinc-700 prose-h2:pb-1.5 prose-li:my-1.5 prose-ul:my-3 prose-ol:my-3 prose-p:leading-7">
-            <ReactMarkdown>{result.answerMarkdown}</ReactMarkdown>
+          <div className="prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:tracking-tight prose-a:text-sky-300 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-h2:text-lg prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3 prose-h2:border-b prose-h2:border-zinc-700 prose-h2:pb-1.5 prose-li:my-1.5 prose-ul:my-3 prose-ol:my-3 prose-p:leading-7 prose-table:border-collapse prose-th:border prose-th:border-zinc-600 prose-th:bg-zinc-800/80 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-td:border prose-td:border-zinc-700 prose-td:px-3 prose-td:py-2 prose-table:text-sm">
+            <ReactMarkdown remarkPlugins={streaming ? [] : [remarkGfm]}>{result.answerMarkdown}</ReactMarkdown>
             {streaming && (
               <span className="inline-block h-4 w-0.5 animate-pulse bg-zinc-300 align-middle" />
             )}
