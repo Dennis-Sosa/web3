@@ -1,7 +1,11 @@
 # 电子现金与去中心化（Princeton Ch1–2 精要）
 
-**对应**：Bitcoin and Cryptocurrency Technologies 第 1–2 章  
-**核心问题**：为什么传统电子现金（electronic cash, e-cash）失败？比特币如何实现去中心化（decentralization）？
+| 项目 | 内容 |
+|------|------|
+| **对应** | Bitcoin and Cryptocurrency Technologies 第 1–2 章 |
+| **核心问题** | 为什么传统电子现金失败？比特币如何实现去中心化？ |
+
+> **一句话结论**：传统 e-cash 因中心化与双重支付等问题失败；比特币用 PoW + 最长链规则在无中心前提下达成共识，把「投票权」绑在算力上抗 Sybil。
 
 ---
 

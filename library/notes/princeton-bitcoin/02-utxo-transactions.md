@@ -1,7 +1,11 @@
 # UTXO 与交易结构（Princeton Ch3 精要）
 
-**对应**：Bitcoin and Cryptocurrency Technologies 第 3 章  
-**核心问题**：比特币交易（transaction）的数据结构是什么？UTXO 与账户模型有何区别？
+| 项目 | 内容 |
+|------|------|
+| **对应** | Bitcoin and Cryptocurrency Technologies 第 3 章 |
+| **核心问题** | 比特币交易的数据结构是什么？UTXO 与账户模型有何区别？ |
+
+> **一句话结论**：比特币用 UTXO 模型记账，不是「账户余额」而是「未花费输出集合」；每笔交易用输入引用旧输出、用输出锁定新金额，由脚本规定花费条件。
 
 ---
 
